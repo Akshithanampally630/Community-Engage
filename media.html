@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo & Video Hub</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <section>
+        <h2>Upload Photos & Videos</h2>
+        <input type="file" accept="image/*,video/*" id="mediaUpload">
+        <button onclick="uploadMedia()">Upload</button>
+        <div class="media-container" id="mediaPreview"></div>
+    </section>
+
+    <div id="fullscreenView" class="fullscreen-view" style="display: none;">
+        <img id="fullscreenImage">
+        <div class="fullscreen-buttons">
+            <button onclick="downloadMedia()">Download</button>
+            <button onclick="deleteMedia()">Delete</button>
+            <button onclick="closeFullscreen()">Close</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

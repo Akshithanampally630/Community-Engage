@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Upcoming Community Activities</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body, html {
+      font-family: Arial, sans-serif;
+      color: #333;
+      background-color: #f7f7f7;
+    }
+
+    .navbar {
+      background-color: #333;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar .logo a {
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .navbar .logo span {
+      color: #3498db;
+    }
+
+    .navbar .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 20px;
+    }
+
+    .navbar .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-size: 16px;
+      padding: 10px;
+      transition: background-color 0.3s;
+    }
+
+    .navbar .nav-links a:hover {
+      background-color: #2980b9;
+      border-radius: 5px;
+    }
+
+    .events-section {
+      padding: 50px 20px;
+      background-color: #fff;
+      text-align: center;
+    }
+
+    .events-container h2 {
+      font-size: 36px;
+      margin-bottom: 40px;
+      font-weight: bold;
+    }
+
+    .events-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+
+    .event-card {
+      background-color: #ffffff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s;
+    }
+
+    .event-card:hover {
+      transform: translateY(-10px);
+    }
+
+    .event-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+
+    .event-info {
+      padding: 20px;
+      text-align: left;
+    }
+
+    .event-info h3 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .btn-register {
+      padding: 10px 20px;
+      background-color: #3498db;
+      color: white;
+      text-decoration: none;
+      font-size: 16px;
+      border-radius: 5px;
+      display: inline-block;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    .btn-register:hover {
+      background-color: #2980b9;
+    }
+
+    @media (max-width: 768px) {
+      .events-list {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .events-list {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">
+      <a href="#">Community<span>-Engage</span></a>
+    </div>
+    
+  </nav>
+
+  <section class="events-section">
+    <div class="events-container">
+      <h2>Upcoming Fun Activities</h2>
+      <div class="events-list" id="events-list">
+        <!-- Events will be dynamically added here -->
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Handle click for all register buttons
+    document.addEventListener('click', async function (e) {
+      if (e.target && e.target.classList.contains('btn-register')) {
+        const eventID = e.target.getAttribute('data-eventid');
+        const eventName = e.target.getAttribute('data-eventname');
+
+        const userID = prompt(`Enter your User ID to register for "${eventName}":`);
+        if (!userID) return;
+
+        try {
+          const response = await fetch('http://localhost:5000/api/eventregister', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ userID, eventID }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            alert(`🎉 Registration successful!\nPoints Earned: ${data.pointsEarned}`);
+            fetchEvents(); // Refresh list to update RemainingParticipants
+          } else {
+            alert(`❌ Registration failed: ${data.error}`);
+          }
+        } catch (error) {
+          alert('Something went wrong during registration.');
+          console.error(error);
+        }
+      }
+    });
+
+    // Fetch and display events
+    async function fetchEvents() {
+      try {
+        const response = await fetch('http://localhost:5000/api/events');
+        if (!response.ok) throw new Error('Failed to fetch events');
+        const events = await response.json();
+
+        const eventsList = document.getElementById('events-list');
+        eventsList.innerHTML = '';
+
+        const currentDate = new Date();
+        const defaultImage = 'f.jpg';
+
+        events.forEach(event => {
+          const lastDateToRegister = event.LastDateToRegister ? new Date(event.LastDateToRegister) : null;
+          const isRegistrationOpen = lastDateToRegister ? currentDate <= lastDateToRegister : true;
+
+          const card = document.createElement('div');
+          card.classList.add('event-card');
+
+          let eventDetails = `
+            <img src="${defaultImage}" alt="Event Image">
+            <div class="event-info">
+              <h3>${event.EventName}</h3>
+              ${event.EventID ? `<p><b>Event ID:</b> ${event.EventID}</p>` : ''}
+              ${event.EventDate ? `<p><b>Date:</b> ${new Date(event.EventDate).toLocaleDateString()}</p>` : ''}
+              ${event.EventTime ? `<p><b>Time:</b> ${event.EventTime}</p>` : ''}
+              ${event.Duration ? `<p><b>Duration:</b> ${event.Duration} Hours</p>` : ''}
+              ${event.EventFrequency ? `<p><b>Frequency:</b> ${event.EventFrequency}</p>` : ''}
+              ${event.EventFrequency === 'Weekly' && event.EventDay ? `<p><b>Day:</b> ${event.EventDay}</p>` : ''}
+              ${event.OrganizerName ? `<p><b>Organizer:</b> ${event.OrganizerName}</p>` : ''}
+              ${event.MaxParticipants ? `<p><b>Max Participants:</b> ${event.MaxParticipants}</p>` : ''}
+              ${event.RemainingParticipants ? `<p><b>Remaining Participants:</b> ${event.RemainingParticipants}</p>` : ''}
+              ${lastDateToRegister ? `<p><b>Last Date to Register:</b> ${lastDateToRegister.toLocaleDateString()}</p>` : ''}
+          `;
+
+          if (!isRegistrationOpen) {
+  eventDetails += `<p style="color: red;"><b>Registration Closed</b></p>`;
+} else if (event.RemainingParticipants <= 0) {
+  eventDetails += `<p style="color: red;"><b>⚠ Event Full</b></p>`;
+} else {
+  eventDetails += `<button class="btn-register" data-eventid="${event.EventID}" data-eventname="${event.EventName}" data-frequency="${event.EventFrequency}">Register Now</button>`;
+}
+
+
+          eventDetails += `</div>`;
+          card.innerHTML = eventDetails;
+          eventsList.appendChild(card);
+        });
+
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      }
+    }
+
+    // On page load
+    fetchEvents();
+  </script>
+</body>
+</html>

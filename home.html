@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Events | Home</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        
+        body {
+            background: url('home.jpg.webp') no-repeat center center/cover;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .navbar {
+            display: flex; justify-content: space-between;
+            align-items: center; padding: 15px 50px;
+            background: rgba(0, 0, 0, 0.7); color: white;
+        }
+        .navbar a {
+            color: white; text-decoration: none;
+            margin: 0 15px; font-size: 18px;
+        }
+        .navbar a:hover { text-decoration: underline; }
+
+        .hero {
+            text-align: center; padding: 50px; color: white;
+            backdrop-filter: brightness(0.7);
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+        }
+        .hero h1 { font-size: 40px; margin-bottom: 10px; }
+        .hero p { font-size: 18px; max-width: 600px; }
+        .btn {
+            display: inline-block; padding: 10px 20px;
+            background: #ff4500; color: white;
+            text-decoration: none; border-radius: 5px;
+            margin-top: 15px;
+        }
+        .btn:hover { background: #e63e00; }
+
+        .footer {
+            background: rgba(0, 0, 0, 0.7); color: white;
+            text-align: center; padding: 15px;
+        }
+
+        #profile-icon img {
+            width: 40px; height: 40px; border-radius: 50%;
+            cursor: pointer; border: 2px solid white;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <h2>Community Engage</h2>
+        <div id="auth-buttons">
+            <a href="loginF.html" class="btn">Login</a>
+            <a href="registration.html" class="btn">Register</a>
+        </div>
+        <div id="profile-icon" style="display: none;">
+            <a href="profile.html"><img src="profile-icon.png" alt="Profile"></a>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <h1>Welcome to Community Engage</h1>
+        <p>Join exciting events for all age groups and showcase your talents.</p>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>© 2025 Community Engage | All Rights Reserved</p>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const isLoggedIn = localStorage.getItem("isLoggedIn");
+
+            if (isLoggedIn === "true") {
+                document.getElementById("auth-buttons").style.display = "none";
+                document.getElementById("profile-icon").style.display = "block";
+            }
+        });
+    </script>
+
+</body>
+</html>

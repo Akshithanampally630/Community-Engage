@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+
+        /* 🔹 Background Image for the Full Page */
+        body {
+            background: url("home.jpg.webp") no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        /* 🔹 Profile Container (White & Opaque) */
+        .profile-container {
+            display: flex;
+            flex-direction: column;
+            width: 80%;
+            max-width: 800px;
+            background: white; /* Opaque white background */
+            margin: 50px auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            align-items: center;
+            text-align: center;
+        }
+
+        .profile-image img {
+            width: 150px; height: 150px;
+            border-radius: 50%;
+            object-fit: cover; border: 3px solid #333;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .btn {
+            display: inline-block; padding: 10px 20px;
+            background: #ff4500; color: white;
+            text-decoration: none; border-radius: 5px; margin-top: 15px;
+        }
+
+        .btn:hover { background: #e63e00; }
+    </style>
+</head>
+<body onload="loadProfile()">
+
+    <div class="profile-container">
+        <div class="profile-image">
+            <img id="profilePic" src="default.png" alt="Profile Picture">
+        </div>
+        <h1 id="profileName">Loading...</h1> 
+        
+        <p><strong>User ID:</strong> <span id="profileUserID">Loading...</span></p>
+        <p><strong>Email:</strong> <span id="profileEmail">Loading...</span></p>
+        <p><strong>Phone Number:</strong> <span id="profilePhoneNumber">Loading...</span></p>
+        <p><strong>Age:</strong> <span id="profileAge">Loading...</span></p>
+        <p><strong>Gender:</strong> <span id="profileGender">Loading...</span></p>
+        <p><strong>Flat Number:</strong> <span id="profileFlat">Loading...</span></p>
+        <p><strong>Skills & Interests:</strong> <span id="profileSkills">Loading...</span></p>
+        <p><strong>Events Involved In:</strong> <span id="profileEvents">Loading...</span></p>
+        <p><strong>Events Organized:</strong> <span id="profileEventsOrganized">Loading...</span></p>
+        <p><strong>Volunteer for Events:</strong> <span id="profileVolunteer">Loading...</span></p>
+        <p><strong>Role:</strong> <span id="profileRole">Loading...</span></p>
+        <p><strong>Points:</strong> <span id="profilePoints">Loading...</span></p>
+        <p><strong>Bio:</strong> <span id="profileBio">Loading...</span></p>
+        <a href="edit-profile.html" class="btn">Edit Profile</a>
+    </div>
+
+    <script>
+        function loadProfile() {
+            const token = localStorage.getItem("token"); // Retrieve JWT token
+            if (!token) {
+                alert("You are not logged in!");
+                window.location.href = "/loginF.html"; // Redirect if no token
+                return;
+            }
+
+            fetch("http://localhost:5000/api/profile", { // Use correct API URL
+                method: "GET",
+                headers: {
+                    "Authorization": "Bearer " + token
+                }
+            })
+            .then(response => {
+                if (response.status === 401) { 
+                    alert("Session expired. Please log in again.");
+                    localStorage.removeItem("token");
+                    window.location.href = "/loginF.html";
+                    return;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data) return; // If no data, exit
+
+                console.log("Profile Data:", data); // Debugging step
+                
+                document.getElementById("profileName").innerText = data.UserName || "Null";
+                document.getElementById("profileUserID").innerText = data.UserID || "Null";
+                document.getElementById("profileEmail").innerText = data.Email || "Null";
+                document.getElementById("profilePhoneNumber").innerText = data.PhoneNumber || "Null";
+                document.getElementById("profileAge").innerText = data.Age || "Null";
+                document.getElementById("profileGender").innerText = data.Gender || "Null";
+                document.getElementById("profileFlat").innerText = data.FlatNumber || "Null";
+                document.getElementById("profileSkills").innerText = data.SkillsAndInterests || "Null";
+                document.getElementById("profileEvents").innerText = data.EventsInvolvedIn || "Null";
+                document.getElementById("profileEventsOrganized").innerText = data.EventsOrganized || "Null";
+                document.getElementById("profileVolunteer").innerText = data.VolunteerStatus || "Null";
+                document.getElementById("profileRole").innerText = data.Role || "Null";
+                document.getElementById("profilePoints").innerText = data.points || "Null";
+                document.getElementById("profileBio").innerText = data.Bio || "Null";
+                // Set profile picture based on gender
+                document.getElementById("profilePic").src = 
+                    data.Gender === "Female" ? "girl.png" : 
+                    (data.Gender === "Male" ? "boy.png" : "default.png");
+            })
+            .catch(error => console.error("Error fetching profile:", error));
+        }
+    </script>
+
+</body>
+</html>

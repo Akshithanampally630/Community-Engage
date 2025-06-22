@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Notice Board</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .activity-card {
+            margin-bottom: 20px;
+        }
+        .card-header {
+            background-color: #007bff;
+            color: white;
+        }
+        .card-body {
+            background-color: #f8f9fa;
+        }
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container my-5">
+    <h2 class="text-center mb-4">Admin Panel - Manage Events</h2>
+
+    <!-- Admin Event Form -->
+    <div class="card mb-4">
+        <div class="card-header">Add New Event</div>
+        <div class="card-body">
+            <form id="eventForm">
+                <div class="mb-3">
+                    <label class="form-label">Event Name</label>
+                    <input type="text" class="form-control" id="eventName" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Event Date</label>
+                    <input type="date" class="form-control" id="eventDate" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" id="eventDescription" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Last Registration Date</label>
+                    <input type="date" class="form-control" id="eventRegDate" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Event</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Events List -->
+    <h3 class="text-center mb-3">Upcoming Activities</h3>
+    <div id="eventsContainer" class="row"></div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", loadEvents);
+
+    document.getElementById("eventForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        let name = document.getElementById("eventName").value;
+        let date = document.getElementById("eventDate").value;
+        let description = document.getElementById("eventDescription").value;
+        let regDate = document.getElementById("eventRegDate").value;
+
+        let event = { name, date, description, regDate };
+
+        let events = JSON.parse(localStorage.getItem("events")) || [];
+        events.push(event);
+        localStorage.setItem("events", JSON.stringify(events));
+
+        document.getElementById("eventForm").reset();
+        loadEvents();
+    });
+
+    function loadEvents() {
+        let events = JSON.parse(localStorage.getItem("events")) || [];
+        let container = document.getElementById("eventsContainer");
+        container.innerHTML = "";
+
+        events.forEach((event, index) => {
+            let eventCard = `
+                <div class="col-md-4">
+                    <div class="card activity-card">
+                        <div class="card-header">${event.name}</div>
+                        <div class="card-body">
+                            <p><strong>Date:</strong> ${event.date}</p>
+                            <p><strong>Description:</strong> ${event.description}</p>
+                            <p><strong>Last Registration Date:</strong> ${event.regDate}</p>
+                            <button class="btn-delete" onclick="deleteEvent(${index})">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.innerHTML += eventCard;
+        });
+    }
+
+    function deleteEvent(index) {
+        let events = JSON.parse(localStorage.getItem("events")) || [];
+        events.splice(index, 1);
+        localStorage.setItem("events", JSON.stringify(events));
+        loadEvents();
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

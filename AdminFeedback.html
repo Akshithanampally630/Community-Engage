@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Feedback Management</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom Styles -->
+  <style>
+    body {
+      background-image: url('home.jpg.webp');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      min-height: 100vh;
+      padding-top: 20px;
+    }
+
+    .opaque-card {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+
+    .modal-content {
+      background: rgba(255, 255, 255, 0.95);
+    }
+
+    h2 {
+      font-weight: bold;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container opaque-card">
+    <h2 class="mb-3 text-center">Feedback Management</h2>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <input id="filterUser" class="form-control" placeholder="Filter by User Name">
+      </div>
+      <div class="col-md-3">
+        <input id="filterEvent" class="form-control" placeholder="Filter by Event Name">
+      </div>
+      <div class="col-md-2">
+        <select id="filterRating" class="form-select">
+          <option value="">All Ratings</option>
+          <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select id="filterStatus" class="form-select">
+          <option value="">All Status</option>
+          <option value="New">New</option>
+          <option value="Reviewed">Reviewed</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Feedback Table -->
+    <table class="table table-bordered bg-white" id="feedbackTable">
+      <thead class="table-light">
+        <tr>
+          <th>User Name</th>
+          <th>Event Name</th>
+          <th>Rating</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="feedbackModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Feedback Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p><strong>User Name:</strong> <span id="modalUserName"></span></p>
+          <p><strong>User ID:</strong> <span id="modalUserID"></span></p>
+          <p><strong>Event ID:</strong> <span id="modalEventID"></span></p>
+          <p><strong>Event Name:</strong> <span id="modalEventName"></span></p>
+          <p><strong>Liked:</strong> <span id="modalLiked"></span></p>
+          <p><strong>Complaints:</strong> <span id="modalComplaints"></span></p>
+          <p><strong>Suggestions:</strong> <span id="modalSuggestions"></span></p>
+          <p><strong>Rating:</strong> <span id="modalRating"></span></p>
+          <p><strong>Feedback Date:</strong> <span id="modalDate"></span></p>
+        </div>
+        <div class="modal-footer">
+          <button id="markReviewedBtn" class="btn btn-success">Mark as Reviewed</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const apiBase = 'http://localhost:5000';
+    let feedbackList = [];
+    let selectedFeedbackID = null;
+
+    async function loadFeedback() {
+      const res = await fetch(`${apiBase}/feedback`);
+      const data = await res.json();
+
+      feedbackList = await Promise.all(data.map(async (fb) => {
+        const userRes = await fetch(`${apiBase}/user/${fb.UserID}`);
+        const user = await userRes.json();
+        fb.UserName = user.userName || 'Unknown';
+        return fb;
+      }));
+
+      renderTable(feedbackList);
+    }
+
+    function renderTable(data) {
+      const tbody = document.querySelector('#feedbackTable tbody');
+      tbody.innerHTML = '';
+      data.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.classList.add('feedback-row');
+        tr.dataset.id = row.FeedbackID;
+        tr.innerHTML = `
+          <td>${row.UserName}</td>
+          <td>${row.EventName}</td>
+          <td>${row.Rating}</td>
+          <td>${row.Status}</td>
+          <td>${row.Status === 'New' ? `<button class="btn btn-sm btn-primary review-btn" data-id="${row.FeedbackID}">Mark as Reviewed</button>` : ''}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function applyFilters() {
+      const user = document.getElementById('filterUser').value.toLowerCase();
+      const event = document.getElementById('filterEvent').value.toLowerCase();
+      const rating = document.getElementById('filterRating').value;
+      const status = document.getElementById('filterStatus').value;
+
+      const filtered = feedbackList.filter(fb =>
+        (!user || fb.UserName.toLowerCase().includes(user)) &&
+        (!event || fb.EventName.toLowerCase().includes(event)) &&
+        (!rating || fb.Rating == rating) &&
+        (!status || fb.Status == status)
+      );
+
+      renderTable(filtered);
+    }
+
+    document.addEventListener('click', async (e) => {
+      const row = e.target.closest('.feedback-row');
+      if (row && !e.target.classList.contains('review-btn')) {
+        const id = row.dataset.id;
+        selectedFeedbackID = id;
+        const feedback = feedbackList.find(f => f.FeedbackID == id);
+        if (!feedback) return;
+
+        document.getElementById('modalUserID').textContent = feedback.UserID;
+        document.getElementById('modalUserName').textContent = feedback.UserName;
+        document.getElementById('modalEventID').textContent = feedback.EventID;
+        document.getElementById('modalEventName').textContent = feedback.EventName;
+        document.getElementById('modalLiked').textContent = feedback.Liked || 'N/A';
+        document.getElementById('modalComplaints').textContent = feedback.Complaints || 'N/A';
+        document.getElementById('modalSuggestions').textContent = feedback.Suggestions || 'N/A';
+        document.getElementById('modalRating').textContent = feedback.Rating;
+        document.getElementById('modalDate').textContent = new Date(feedback.FeedbackDate).toLocaleString();
+
+        new bootstrap.Modal(document.getElementById('feedbackModal')).show();
+      }
+    });
+
+    document.getElementById('markReviewedBtn').addEventListener('click', async () => {
+      if (!selectedFeedbackID) return;
+      await fetch(`${apiBase}/api/feedback/${selectedFeedbackID}/reviewed`, { method: 'PUT' });
+      bootstrap.Modal.getInstance(document.getElementById('feedbackModal')).hide();
+      loadFeedback();
+    });
+
+    document.addEventListener('click', async (e) => {
+      if (e.target.classList.contains('review-btn')) {
+        e.stopPropagation();
+        const id = e.target.dataset.id;
+        await fetch(`${apiBase}/api/feedback/${id}/reviewed`, { method: 'PUT' });
+        loadFeedback();
+      }
+    });
+
+    document.querySelectorAll('#filterUser, #filterEvent, #filterRating, #filterStatus')
+      .forEach(el => el.addEventListener('input', applyFilters));
+
+    document.addEventListener('DOMContentLoaded', loadFeedback);
+  </script>
+</body>
+</html>

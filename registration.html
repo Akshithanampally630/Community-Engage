@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Page</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: url('background.jpg') no-repeat center center/cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            position: relative;
+            flex-direction: column;
+            transition: background 0.3s ease;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #ffffff;
+            padding: 10px;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .register-box {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            width: 500px; /* Increased width */
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .register-box h2 {
+            margin-bottom: 20px;
+            font-size: 26px;
+            font-weight: 600;
+        }
+
+        .register-box input, .register-box select, .register-box textarea {
+            width: 100%;
+            padding: 14px;
+            margin: 14px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.8);
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .register-box input:focus, .register-box select:focus, .register-box textarea:focus {
+            border-color: #0078ff;
+            background: #fff;
+        }
+
+        .register-box button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #0078ff, #00c6ff);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .register-box button:hover {
+            background: linear-gradient(135deg, #0056b3, #0099ff);
+            transform: scale(1.05);
+        }
+
+        .login-text {
+            margin-top: 15px;
+            font-size: 15px;
+        }
+
+        .login-link {
+            color: #0078ff;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .login-link:hover {
+            text-decoration: underline;
+        }
+
+        .dark-mode {
+            background: #121212;
+            color: #ffffff;
+        }
+
+        .dark-mode .register-box {
+            background: rgba(40, 40, 40, 0.9);
+            color: white;
+        }
+
+        .dark-mode .register-box input, .dark-mode .register-box select, .dark-mode .register-box textarea {
+            background: rgba(70, 70, 70, 0.8);
+            border: 1px solid #777;
+            color: white;
+        }
+
+        .dark-mode .register-box button {
+            background: linear-gradient(135deg, #bb86fc, #6200ea);
+        }
+
+        .dark-mode .register-box button:hover {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        }
+
+        .dark-mode .login-link {
+            color: #bb86fc;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="theme-toggle" onclick="toggleTheme()">🌙</div>
+    <div class="register-box">
+        <h2>Register</h2>
+        <form id="registrationForm">
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <input type="text" id="flatNumber" placeholder="Flat Number" required>
+            <input type="tel" id="phone" placeholder="Phone Number" required>
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="number" id="age" placeholder="Age" required>
+
+            <select id="gender" required>
+                <option value="" disabled selected>Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select>
+
+            <input type="text" id="skills" placeholder="Skills and Interests">
+            <textarea id="bio" placeholder="Write a short bio..."></textarea>
+
+            <button type="submit">Register</button>
+        </form>
+        <p class="login-text">Already have an account? <a href="loginF.html" class="login-link">Login here</a></p>
+    </div>
+
+    <script>
+        document.getElementById('registrationForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+    
+            const userData = {
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value,
+                flatNumber: document.getElementById('flatNumber').value,
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value,
+                age: document.getElementById('age').value,
+                gender: document.getElementById('gender').value,
+                skills: document.getElementById('skills').value,
+                bio: document.getElementById('bio').value
+            };
+    
+            try {
+                const response = await fetch('http://localhost:5000/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
+                });
+    
+                const result = await response.json();
+                alert(result.message);
+    
+                if (response.ok) {
+                    window.location.href = 'loginF.html';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Registration failed');
+            }
+        });
+    </script>
+    
+</body>
+</html>

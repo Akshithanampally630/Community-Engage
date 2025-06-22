@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Feedback</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <section>
+        <h2>Give Your Feedback</h2>
+        <form id="feedbackForm">
+            <label>UserId</label>
+            <input type="text" id="userId" placeholder="User Id" required />
+            
+            <label>Which event did you attend?</label>
+            <input type="text" id="eventName" placeholder="Event name" required />
+
+            <label>What you liked</label>
+            <textarea id="likes" placeholder="Mention the positives..." required></textarea>
+            
+            <label>Complaints</label>
+            <textarea id="complaints" placeholder="Mention any complaints..."></textarea>
+            
+            <label>Suggestions</label>
+            <textarea id="suggestions" placeholder="Any suggestions for improvement..."></textarea>
+            
+            <label>Overall Rating (1-5)</label>
+            <input type="number" id="rating" min="1" max="5" required />
+            
+            <button type="submit">Submit Feedback</button>
+        </form>
+
+        <div id="feedback-list"></div>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donation Page</title>
+    <style>
+        /* Full-page background */
+        body {
+            margin: 0;
+            padding: 0;
+            background: url('home.jpg.webp') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Opaque white form box */
+        .container {
+            background: rgba(255, 255, 255, 0.85); /* Semi-transparent white */
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 50%; /* Takes up 50% of screen width */
+            max-width: 600px; /* Prevents it from becoming too large on wide screens */
+        }
+
+        /* Headings */
+        h2, h3 {
+            color: #333;
+        }
+
+        /* Inputs */
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        /* QR Code */
+        img {
+            margin-top: 15px;
+            border-radius: 8px;
+            width: 250px;
+        }
+
+        /* Payment status */
+        #status {
+            margin-top: 15px;
+            font-weight: bold;
+            color: green;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Donate Now</h2>
+        <h3>Your small contribution makes a big difference</h3>
+        <h3>Scan the QR Code to Pay</h3>
+        <h3>Please make sure to mention the following things in the note while paying:</h3>
+        <h3>1.User ID </h3>
+        <h3>2.The name of the event for which you are willing to donate</h3>
+        <img id="qrCode" src="myqrcode.jpeg" alt="PhonePe QR Code">
+
+        
+    </div>
+    
+</body>
+</html>

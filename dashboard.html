@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <h2>Community Dashboard</h2>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <header>
+            <h1>Welcome to the Community Dashboard</h1>
+        </header>
+
+        <section class="stats">
+            <div class="card">
+                <h3>Participants</h3>
+                <p id="participants-count">Loading...</p>
+            </div>
+            <div class="card">
+                <h3>Activities Completed</h3>
+                <p id="activities-completed">Loading...</p>
+            </div>
+            <div class="card">
+                <h3>Ongoing Activities</h3>
+                <p id="activities-ongoing">Loading...</p>
+            </div>
+            <div class="card">
+                <h3>Active Members</h3>
+                <p id="active-members-count">Loading...</p>
+            </div>
+        </section>
+
+        <section class="charts">
+            <div class="chart-box">
+                <h3>Event Types</h3>
+                <canvas id="eventsChart"></canvas> 
+            </div>
+            <div class="chart-box">
+                <h3>Top Performers</h3>
+                <canvas id="rankingsChart"></canvas> 
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Fetch and Update Dashboard Stats
+        document.addEventListener("DOMContentLoaded", () => {
+            fetch("http://localhost:5000/api/dashboard-stats")
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("participants-count").textContent = data.totalParticipants;
+                    document.getElementById("activities-completed").textContent = data.activitiesCompleted;
+                    document.getElementById("activities-ongoing").textContent = data.activitiesOngoing;
+                    document.getElementById("active-members-count").textContent = data.activeMembers;
+
+                    // Update Events Chart
+                    var eventsCtx = document.getElementById('eventsChart').getContext('2d');
+                    new Chart(eventsCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['One-time Events', 'Weekly Events', 'Volunteers'],
+                            datasets: [{
+                                label: 'Count',
+                                data: [data.oneTimeEvents, data.weeklyEvents, data.totalVolunteers],
+                                backgroundColor: ['#4CAF50', '#FF9800', '#2196F3'],
+                                borderColor: '#ccc',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: { beginAtZero: true }
+                            }
+                        }
+                    });
+                })
+                .catch(error => console.error("Error loading dashboard stats:", error));
+
+    fetch('http://localhost:5000/api/top-performers')
+    .then(response => response.json())
+    .then(data => {
+        const names = data.map(item => item.UserName); // Extracting names
+        const points = data.map(item => item.points); // Extracting points
+
+        // Create the pie chart with the extracted data
+        var rankingsCtx = document.getElementById('rankingsChart').getContext('2d');
+        var rankingsChart = new Chart(rankingsCtx, {
+            type: 'pie',
+            data: {
+                labels: names,  // Names of the top performers
+                datasets: [{
+                    label: 'Ranking Distribution',
+                    data: points, // Points of the top performers
+                    backgroundColor: ['#FF5733', '#33FF57', '#3357FF', '#FF33A8', '#FF8C33'],
+                    borderColor: 'rgba(0, 0, 0, 0.1)',
+                    borderWidth: 1
+                }]
+            }
+        });
+    })
+    .catch(error => {
+        console.error('Error fetching top performers:', error);
+    });
+        });
+    </script>
+</body>
+</html>

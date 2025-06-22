@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background-color: #f4f4f4; text-align: center; }
+        .edit-container {
+            width: 50%; background: white; margin: 50px auto;
+            padding: 20px; border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+        h2 { margin-bottom: 20px; color: #333; text-align: center; }
+        label { display: block; margin-top: 10px; font-weight: bold; }
+        input, select, textarea {
+            width: 100%; padding: 10px; margin-top: 5px;
+            border: 1px solid #ccc; border-radius: 5px;
+        }
+        .btn {
+            display: block; width: 100%;
+            padding: 10px; margin-top: 20px;
+            background: #ff4500; color: white;
+            text-decoration: none; border-radius: 5px; cursor: pointer; text-align: center;
+        }
+        .btn:hover { background: #e63e00; }
+    </style>
+</head>
+<body onload="loadEditProfile()">
+
+    <div class="edit-container">
+        <h2>Edit Profile</h2>
+        
+        <label>User ID:</label>
+        <input type="text" id="editID" disabled> 
+
+        <label>Username:</label>
+        <input type="text" id="editName" disabled>  
+
+        <label>Password (Leave blank to keep current password):</label>
+        <input type="password" id="editPassword">
+
+        <label>Email:</label>
+        <input type="email" id="editEmail" disabled>
+
+        <label>Phone Number:</label>
+        <input type="text" id="editPhone">
+
+        <label>Age:</label>
+        <input type="number" id="editAge">
+
+        <label>Gender:</label>
+        <select id="editGender">
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+        </select>
+
+        <label>Flat Number:</label>
+        <input type="text" id="editFlat">
+
+        <label>Skills & Interests:</label>
+        <input type="text" id="editSkills">
+
+        <label>Bio:</label>
+        <textarea id="editBio"></textarea>
+
+        <button class="btn" onclick="saveProfile()">Save</button>
+    </div>
+
+    <script>
+        async function loadEditProfile() {
+            const token = localStorage.getItem("token"); 
+            if (!token) {
+                alert("Session expired! Please log in again.");
+                window.location.href = "loginF.html"; 
+                return;
+            }
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/profile', {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}` } 
+                });
+
+                if (response.status === 401 || response.status === 403) {  
+                    alert("Session expired! Please log in again.");
+                    localStorage.removeItem("token"); 
+                    window.location.href = "loginF.html"; 
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error("Failed to fetch profile.");
+                }
+
+                const userData = await response.json();
+
+                document.getElementById("editID").value = userData.UserID || "";
+                document.getElementById("editName").value = userData.UserName || "";
+                document.getElementById("editEmail").value = userData.Email || "";
+                document.getElementById("editPhone").value = userData.PhoneNumber || "";
+                document.getElementById("editAge").value = userData.Age || "";
+                document.getElementById("editGender").value = userData.Gender || "Male";
+                document.getElementById("editFlat").value = userData.FlatNumber || "";
+                document.getElementById("editSkills").value = userData.SkillsAndInterests || "";
+                document.getElementById("editBio").value = userData.Bio || "";
+
+                localStorage.setItem("userID", userData.UserID); 
+
+            } catch (error) {
+                console.error("Error loading profile:", error);
+                alert("Error loading profile. Please try again.");
+            }
+        }
+
+        async function saveProfile() {
+            const userID = localStorage.getItem("userID"); 
+            if (!userID) {
+                alert("Error: User ID missing. Please log in again.");
+                window.location.href = "loginF.html";
+                return;
+            }
+
+            const updatedData = {
+                userID, 
+                password: document.getElementById("editPassword").value.trim(), 
+                phone: document.getElementById("editPhone").value,
+                age: document.getElementById("editAge").value,
+                gender: document.getElementById("editGender").value,
+                flat: document.getElementById("editFlat").value,
+                skills: document.getElementById("editSkills").value,
+                bio: document.getElementById("editBio").value
+            };
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/updateProfile', {
+                    method: 'PUT', // Changed from POST to PUT
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem("token")}`  
+                    },
+                    body: JSON.stringify(updatedData)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert("Profile updated successfully!");
+                    window.location.href = "profile.html"; 
+                } else {
+                    alert("Error updating profile: " + result.message);
+                }
+            } catch (error) {
+                console.error("Error updating profile:", error);
+                alert("Failed to update profile. Please try again.");
+            }
+        }
+    </script>
+
+</body>
+</html>

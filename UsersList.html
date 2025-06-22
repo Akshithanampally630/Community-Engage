@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User List</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <style>
+    body {
+      background-image: url('home.jpg.webp');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      font-family: Arial, sans-serif;
+    }
+
+    .opaque-container {
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      margin-top: 40px;
+    }
+
+    .table th, .table td {
+      vertical-align: middle;
+    }
+
+    .modal-content {
+      background: rgba(255, 255, 255, 0.95);
+    }
+  </style>
+</head>
+<body>
+  <div class="container opaque-container">
+    <h2 class="mb-4 text-center">User List</h2>
+
+    <div class="mb-3 d-flex justify-content-center">
+      <input type="text" id="searchInput" class="form-control w-50" placeholder="Search by Name or Email" onkeyup="filterTable()">
+    </div>
+
+    <table class="table table-bordered table-striped" id="userTable">
+      <thead class="table-dark">
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Age</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- Modal for User Profile -->
+  <div class="modal fade" id="userModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="modalUserName"></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p><strong>Email:</strong> <span id="modalEmail"></span></p>
+          <p><strong>Phone:</strong> <span id="modalPhone"></span></p>
+          <p><strong>Age:</strong> <span id="modalAge"></span></p>
+          <p><strong>Gender:</strong> <span id="modalGender"></span></p>
+          <p><strong>Flat Number:</strong> <span id="modalFlat"></span></p>
+          <p><strong>Skills & Interests:</strong> <span id="modalSkills"></span></p>
+          <p><strong>Volunteer Status:</strong> <span id="modalVolunteer"></span></p>
+          <p><strong>Role:</strong> <span id="modalRole"></span></p>
+          <p><strong>Bio:</strong> <span id="modalBio"></span></p>
+          <p><strong>Points:</strong> <span id="modalPoints"></span></p>
+          <p><strong>Events Involved In:</strong> <span id="modalInvolved"></span></p>
+          <p><strong>Events Organized:</strong> <span id="modalOrganized"></span></p>
+
+          <hr>
+          <!-- Update Score Section -->
+          <div class="mb-3">
+            <label for="newPointsInput" class="form-label"><strong>Update Score:</strong></label>
+            <input type="number" id="newPointsInput" class="form-control" placeholder="Enter new score">
+          </div>
+          <button class="btn btn-success" onclick="updateScore()">Update Score</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    let users = [];
+    let currentUserId = null;
+
+    async function fetchUsers() {
+      try {
+        const res = await fetch('http://localhost:5000/users');
+        if (!res.ok) throw new Error("Failed to fetch users");
+        users = await res.json();
+        renderUsers(users);
+      } catch (err) {
+        console.error(err);
+        alert("Error fetching users!");
+      }
+    }
+
+    function renderUsers(data) {
+      const tbody = document.querySelector('#userTable tbody');
+      tbody.innerHTML = '';
+      data.forEach(user => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${user.UserID}</td>
+          <td>${user.UserName}</td>
+          <td>${user.Email}</td>
+          <td>${user.Age || 'N/A'}</td>
+        `;
+        row.onclick = () => loadUserDetails(user.UserID);
+        tbody.appendChild(row);
+      });
+    }
+
+    function filterTable() {
+      const input = document.getElementById("searchInput").value.toLowerCase();
+      const filtered = users.filter(u =>
+        u.UserName.toLowerCase().includes(input) || u.Email.toLowerCase().includes(input)
+      );
+      renderUsers(filtered);
+    }
+
+    async function loadUserDetails(userId) {
+      try {
+        const res = await fetch(`http://localhost:5000/users/${userId}`);
+        if (!res.ok) throw new Error("User fetch failed");
+        const user = await res.json();
+        currentUserId = user.UserID;
+
+        // Fill modal content
+        document.getElementById('modalUserName').textContent = `${user.UserName}'s Profile`;
+        document.getElementById('modalEmail').textContent = user.Email;
+        document.getElementById('modalPhone').textContent = user.PhoneNumber || 'N/A';
+        document.getElementById('modalAge').textContent = user.Age || 'N/A';
+        document.getElementById('modalGender').textContent = user.Gender;
+        document.getElementById('modalFlat').textContent = user.FlatNumber || 'N/A';
+        document.getElementById('modalSkills').textContent = user.SkillsAndInterests || 'N/A';
+        document.getElementById('modalVolunteer').textContent = user.VolunteerStatus || 'N/A';
+        document.getElementById('modalRole').textContent = user.Role;
+        document.getElementById('modalBio').textContent = user.Bio || 'N/A';
+        document.getElementById('modalPoints').textContent = user.points;
+        document.getElementById('modalInvolved').textContent = user.EventsInvolvedIn || 'N/A';
+        document.getElementById('modalOrganized').textContent = user.EventsOrganized || 'N/A';
+
+        document.getElementById('newPointsInput').value = user.points;
+
+        const modal = new bootstrap.Modal(document.getElementById('userModal'));
+        modal.show();
+      } catch (err) {
+        console.error(err);
+        alert("Error loading user details");
+      }
+    }
+
+    async function updateScore() {
+      const newPoints = parseInt(document.getElementById('newPointsInput').value);
+      if (isNaN(newPoints)) {
+        alert("Please enter a valid number");
+        return;
+      }
+
+      try {
+        const res = await fetch('http://localhost:5000/update-score', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: currentUserId, points: newPoints })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          alert("Score updated!");
+          document.getElementById('modalPoints').textContent = newPoints;
+          fetchUsers(); // Refresh table
+        } else {
+          alert(data.error || "Failed to update score");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Error updating score");
+      }
+    }
+
+    fetchUsers();
+  </script>
+</body>
+</html>

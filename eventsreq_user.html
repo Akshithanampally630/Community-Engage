@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Request</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('home.jpg.webp'); /* Replace with actual image */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        
+        .container {
+    max-width: 600px;
+    background: rgba(255, 255, 255, 0.9); /* White box with slight transparency */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-control {
+    background: white !important; /* Solid white input fields */
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+button {
+    background-color: #ffa500 !important; /* Orange */
+    color: white !important;
+    font-weight: bold;
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #ff8c00 !important; /* Darker Orange */
+}
+
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="text-center">Request to organize an Event</h2>
+        <form id="eventRequestForm">
+            <div class="mb-3">
+                <label for="eventName" class="form-label">Event Name</label>
+                <input type="text" class="form-control" id="eventName" required>
+            </div>
+            <div class="mb-3">
+                <label for="UserID" class="form-label">User ID</label>
+                <input type="text" class="form-control" id="UserID" required>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" rows="3" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="eventType" class="form-label">Event Type</label>
+                <select class="form-control" id="eventType" required>
+                    <option value="Once">One-time Event</option>
+                    <option value="Weekly">Weekly Classes</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="EventDay" class="form-label">Event Day</label>
+                <input type="text"  class="form-control" id="EventDay" required>
+            </div>
+            <div class="mb-3" id="eventDateField">
+                <label for="eventDate" class="form-label">Event Date</label>
+                <input type="date" class="form-control" id="eventDate">
+            </div>
+            <div class="mb-3" id="weeklyDayField" style="display: none;">
+                <label for="eventDay" class="form-label">Which Day of the Week?</label>
+                <select class="form-control" id="eventDay">
+                    <option value="Monday">Monday</option>
+                    <option value="Tuesday">Tuesday</option>
+                    <option value="Wednesday">Wednesday</option>
+                    <option value="Thursday">Thursday</option>
+                    <option value="Friday">Friday</option>
+                    <option value="Saturday">Saturday</option>
+                    <option value="Sunday">Sunday</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="eventTime" class="form-label">Event Time</label>
+                <input type="time" class="form-control" id="eventTime" required>
+            </div>
+            <div class="mb-3">
+                <label for="duration" class="form-label">Duration (in hours)</label>
+                <input type="number" class="form-control" id="duration" required>
+            </div>
+            <div class="mb-3">
+                <label for="organizerName" class="form-label">Organizer Name</label>
+                <input type="text" class="form-control" id="organizerName" required>
+            </div>
+            <div class="mb-3">
+                <label for="maxParticipants" class="form-label">Maximum Participants</label>
+                <input type="number" class="form-control" id="maxParticipants" required>
+            </div>
+            <div class="mb-3">
+                <label for="maxVolunteers" class="form-label">Maximum Volunteers</label>
+                <input type="number" class="form-control" id="maxVolunteers" required>
+            </div>
+            <div class="mb-3">
+                <label for="eventLocation" class="form-label">Event Location</label>
+                <input type="text" class="form-control" id="eventLocation" required>
+            </div>
+            <div class="mb-3">
+                <label for="registrationDeadline" class="form-label">Last Date for Registration</label>
+                <input type="date" class="form-control" id="registrationDeadline" required>
+            </div>
+            <button type="submit" class="btn">Submit Request</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById("eventRequestForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+    
+            // Collect form data
+            const eventData = {
+                eventName: document.getElementById("eventName").value,
+                description: document.getElementById("description").value,
+                proposedDate: document.getElementById("eventDate").value || null,
+                proposedTime: document.getElementById("eventTime").value || null,
+                requestorID: document.getElementById("UserID").value, // User provided ID
+                status: "Pending", // Default status
+                organiserName: document.getElementById("organizerName").value,
+                maxParticipants: document.getElementById("maxParticipants").value || 0,
+                maxVolunteers: document.getElementById("maxVolunteers").value || 0,
+                lastDateToRegister: document.getElementById("registrationDeadline").value,
+                eventDate: document.getElementById("eventDate").value,
+                eventTime: document.getElementById("eventTime").value,
+                location: document.getElementById("eventLocation").value,
+                durationInHours: document.getElementById("duration").value || 0,
+                eventFrequency: document.getElementById("eventType").value,
+                eventDay: document.getElementById("EventDay").value // Event Day (nullable)
+            };
+    
+            try {
+                const response = await fetch("http://localhost:5000/api/eventrequests", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(eventData)
+                });
+    
+                const result = await response.json();
+                if (response.ok) {
+                    alert("Event request submitted successfully!");
+                } else {
+                    alert("Error: " + result.message);
+                }
+            } catch (error) {
+                alert("Failed to submit event request.");
+                console.error(error);
+            }
+        });
+    </script>
+    
+</body>
+</html>

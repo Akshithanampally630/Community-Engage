@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #add8e6; /* Light Blue Background */
+            margin: 0;
+            overflow: hidden; /* Hide scrollbars */
+        }
+        .container {
+            background: white;
+            padding: 50px;
+            border-radius: 12px;
+            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
+            width: 65%;
+            max-width: 750px;
+            max-height: 90vh; /* Limit the form height */
+            overflow-y: scroll; /* Allow scrolling inside the form */
+            text-align: center;
+        }
+        .container h2 {
+            margin-bottom: 30px;
+            color: #343a40;
+            font-size: 30px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        input, select {
+            width: calc(100% - 20px);
+            padding: 14px;
+            margin: 14px 0;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            display: block;
+            font-size: 18px;
+        }
+        button {
+            width: 100%;
+            padding: 16px;
+            background: #ff6f61; /* Warm coral button color */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: background 0.3s, transform 0.2s;
+        }
+        button:hover {
+            background: #ff4a34; /* Darker coral on hover */
+            transform: scale(1.05);
+        }
+        .checkbox-group {
+            text-align: left;
+            margin: 20px 0;
+        }
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            font-size: 18px;
+        }
+        .checkbox-group input {
+            margin-right: 15px;
+            width: 18px;
+            height: 18px;
+        }
+        .time-input {
+            width: 100%;
+        }
+        .other-activity {
+            width: calc(100% - 20px);
+            padding: 14px;
+            margin: 14px 0;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 style="font-size: 36px; margin-bottom: 20px; text-align: center;">Registration Form</h2>
+        <form id="registrationForm">
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <input type="text" id="houseNumber" placeholder="House Number" required>
+            <input type="tel" id="phone" placeholder="Phone Number" required>
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="number" id="age" placeholder="Age" required>
+
+            <!-- Free Time Entry moved here -->
+            
+            <div class="checkbox-group">
+                <label>Activities Interested In:</label>
+                <label><input type="checkbox" name="activities" value="Singing"> Singing</label>
+                <label><input type="checkbox" name="activities" value="Dancing"> Dancing</label>
+                <label><input type="checkbox" name="activities" value="Yoga"> Yoga</label>
+                <label><input type="checkbox" name="activities" value="Painting"> Painting</label>
+                <label><input type="checkbox" name="activities" value="Sports"> Sports</label>
+                <label><input type="checkbox" name="activities" value="Cooking"> Cooking</label>
+            </div>
+
+            <label for="otherActivity">Other Activities (if not listed):</label>
+            <input type="text" id="otherActivity" class="other-activity" placeholder="Enter your own activity" />
+
+            <label for="freeTime">Enter Free Time (e.g., 10:30 AM):</label>
+            <input type="text" id="freeTime" class="time-input" placeholder="Enter time like 10:30 AM" required>
+
+            <label for="availability">Preferred Time for Activities:</label>
+            <select id="availability" required>
+                <option value="Morning">Morning</option>
+                <option value="Afternoon">Afternoon</option>
+                <option value="Evening">Evening</option>
+            </select>
+
+            <button type="submit">Register</button>
+        </form>
+    </div>
+    
+    <script>
+        document.getElementById('registrationForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            alert('Registration Successful!');
+        });
+    </script>
+</body>
+</html>
