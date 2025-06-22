@@ -1,0 +1,63 @@
+// backend/routes/userLogin.js
+
+const express = require('express');
+const bcrypt = require('bcryptjs'); // For password comparison
+const jwt = require('jsonwebtoken'); // For JWT token generation
+const db = require('../db'); // Database connection
+
+const router = express.Router();
+
+// User login route
+router.post('/', (req, res) => {
+  const { username, password } = req.body;
+  console.log('Received login request:', username, password);
+
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Username and password are required.' });
+  }
+
+  // Query to find user by username (case-sensitive)
+  const query = 'SELECT * FROM Users WHERE UserName = ?';
+  db.query(query, [username], (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ error: 'Database error while retrieving user.' });
+    }
+
+    if (results.length === 0) {
+      console.log('User not found for username:', username);
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    const user = results[0];
+    console.log('User found:', user.UserName);
+    console.log('Entered Password:', password);
+    console.log('Stored Hashed Password:', user.Password);
+
+    // Compare hashed password using bcrypt (case-sensitive column fix)
+    bcrypt.compare(password, user.Password, (err, isMatch) => {
+      if (err) {
+        console.error('Error during bcrypt.compare:', err);
+        return res.status(500).json({ error: 'Error comparing password.' });
+      }
+
+      console.log('Password match result:', isMatch);
+      if (!isMatch) {
+        console.log('Incorrect password for username:', username);
+        return res.status(401).json({ error: 'Incorrect password.' });
+      }
+
+      // Generate JWT if password is correct
+      const token = jwt.sign(
+        { userId: user.UserID, username: user.UserName },
+        '7f5e8Fh2mB!gZ5#9JdQwA1n9zLsP3eR&J',
+        { expiresIn: '1h' }
+      );
+
+      console.log('User login successful for:', username);
+      res.json({ message: 'User logged in successfully!', token });
+    });
+  });
+});
+
+module.exports = router;
